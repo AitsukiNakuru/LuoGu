@@ -30,7 +30,7 @@ public class P3376 {
         queue.add(s);
         dist[s] = 0;
 
-
+        return false;
     }
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));

@@ -12,6 +12,14 @@ public class P4779 {
     static int[] edgeList, lastEdgeList, finalEdgeList, weightList;
     static int[] dist;
     static boolean[] visitedList;
+    static class Node {
+        int index, distance;
+
+        public Node(int index, int distance) {
+            this.index = index;
+            this.distance = distance;
+        }
+    }
     public static void main(String[] args) throws IOException {
         BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
         String[] str = bf.readLine().split(" ");
@@ -65,11 +73,4 @@ public class P4779 {
         }
     }
 }
-class Node {
-    int index, distance;
 
-    public Node(int index, int distance) {
-        this.index = index;
-        this.distance = distance;
-    }
-}

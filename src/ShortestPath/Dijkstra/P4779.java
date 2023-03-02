@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.PriorityQueue;
 
 public class P4779 {
@@ -35,23 +36,26 @@ public class P4779 {
         // 查找一个点a的所有边过程为：
         // 1：从finalEdgeList中查找出点a的最后一条边finalEdge
         // 2：从lastEdgeList中查找出finalEdge的上一条边lastEdge
-        // 3：从lastEdgeList中查找出lastEdge的上一条边，更新lastEdge
+        // 3：从lastEdgeList中查找出lastEdge的上一条边，将当前的edge更新为lastEdge
         // 4：重复过程3，直到lastEdge为-1
+    }
+    static class Node {
+        int index, distance;
+
+        public Node(int index, int distance) {
+            this.index = index;
+            this.distance = distance;
+        }
     }
 
     static void dijkstra() {
-
-        PriorityQueue<Node> accessibleList = new PriorityQueue<>((o1, o2) -> {
-            return o1.distance - o2.distance;
-        });
+        PriorityQueue<Node> accessibleList = new PriorityQueue<>(Comparator.comparingInt(o -> o.distance));
         Arrays.fill(dist, INF);
         Arrays.fill(visitedList, false);
         accessibleList.add(new Node(s, 0));
         dist[s] = 0;
-
         while (!accessibleList.isEmpty()) {
             int nowNode = accessibleList.poll().index;
-
             if (visitedList[nowNode]) continue;
             visitedList[nowNode] = true;
             for (int i = finalEdgeList[nowNode]; i != -1; i = lastEdgeList[i]) {
@@ -90,11 +94,4 @@ public class P4779 {
     }
 }
 
-class Node {
-    int index, distance;
 
-    public Node(int index, int distance) {
-        this.index = index;
-        this.distance = distance;
-    }
-}

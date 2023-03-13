@@ -1,149 +1,79 @@
-import java.util.LinkedList;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 
-public class Main  {
+public class Main {
 
-    private static node[] map;
-    private static int sum, count;
-    private static int[] head, dep, cur, sta;
-
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-        Scanner sc = new Scanner(System.in);
-        int n = sc.nextInt();
-        int a = sc.nextInt();
-        int b = sc.nextInt();
-        map = new node[1200010];
-        head = new int[2010];
-        cur = new int[2010];
-        sta = new int[2010];
-        init(n);
-        for(int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                int x = sc.nextInt();
-                if (x != 0) {
-                    addnode(i, j, x);
+    static ArrayList<Integer> getPrimeList(int n) {
+        ArrayList<Integer> primeList = new ArrayList<Integer>();
+        boolean[] isNotPrime = new boolean[n + 1];
+        isNotPrime[0] = true;
+        isNotPrime[1] = true;
+        for (int i = 2; i <= n; i++) {
+            if (!isNotPrime[i]) {
+                primeList.add(i);
+            }
+            for (Integer prime : primeList) {
+                if (prime * i > n) {
+                    break;
                 }
-            }
-
-        }
-        System.out.println(Dinic(a, b, n));
-    }
-
-    public static int Dinic(int start, int end, int n) {
-        int maxflow = 0;
-        while(BFS(start, end, n)) {
-            for(int i = 0; i < n; i++) {
-                cur[i] = head[i];
-            }
-            int u = start;
-            int tail = 0;
-            while(cur[start]!=-1) {
-                if(u == end) {
-                    int tp = Integer.MAX_VALUE;
-                    for(int i = tail-1; i >= 0; i--) {
-                        tp = Math.min(tp, map[sta[i]].getVolume()-map[sta[i]].getFlow());
-                    }
-                    maxflow = maxflow + tp;
-                    for(int i = tail-1; i >= 0; i--) {
-                        map[sta[i]].setFlow(map[sta[i]].getFlow()+tp);
-                        map[sta[i]^1].setFlow(map[sta[i]^1].getFlow()-tp);
-                        if(map[sta[i]].getVolume()-map[sta[i]].getFlow()==0) {
-                            tail = i;
-                        }
-                    }
-                    u = map[sta[tail]^1].getTo();
-                }else if(cur[u]!=-1&&map[cur[u]].getVolume()>map[cur[u]].getFlow()&&dep[u]+1==dep[map[cur[u]].getTo()]) {
-                    sta[tail++] = cur[u];
-                    u = map[cur[u]].getTo();
-                }else {
-                    while(u!=start&&cur[u]==-1) {
-                        u=map[sta[--tail]^1].getTo();
-                    }
-                    cur[u]=map[cur[u]].getNext();
+                isNotPrime[prime * i] = true;
+                if (i % prime == 0) {
+                    break;
                 }
             }
         }
-        return maxflow;
+        return primeList;
     }
 
-    public static void init(int n) {
-        count = 2;
-        for(int i = 0; i <= n; i++) {
-            head[i] = -1;
+    static boolean checkPow(Long x) {
+        Long y = (long) Math.sqrt(x);
+        if (y * y == x || (y + 1) * (y + 1) == x) {
+            return true;
         }
-    }
-
-    public static void addnode(int u, int v, int w) {
-        map[count] = new node(v, head[u], w, 0);
-        head[u] = count;
-        count++;
-        map[count] = new node(u, head[v], 0, 0);
-        head[v] = count;
-        count++;
-    }
-
-    public static boolean BFS(int start, int end, int n) {
-        LinkedList<Integer> queue = new LinkedList<Integer>();
-        dep = new int[2010];
-        for(int i = 0; i <= n; i++) {
-            dep[i] = -1;
-        }
-        dep[start] = 0;
-        queue.addLast(start);
-        while(queue.size()!=0) {
-            int from = queue.removeFirst();
-            for(int i = head[from]; i != -1; i = map[i].getNext()) {
-                int to = map[i].getTo();
-                if(map[i].getVolume()>map[i].getFlow()&&dep[to]==-1) {
-                    dep[to] = dep[from] + 1;
-                    if(to == end) {
-                        return true;
-                    }
-                    queue.addLast(to);
-                }
-            }
+        y = (long) Math.pow(x, 1.0 / 3);
+        if (Math.pow(y, 3) == x || Math.pow(y + 1, 3) == x || Math.pow(y + 2, 3) == x) {
+            return true;
         }
         return false;
     }
+
+    static boolean calculate(Long number, ArrayList<Integer> primeList) {
+        if (checkPow(number)) {
+            return true;
+        }
+        boolean flag = true;
+        for (Integer prime : primeList) {
+            if (number % prime == 0) {
+                int exponent = 0;
+                while (number % prime == 0) {
+                    exponent++;
+                    number /= prime;
+                }
+                if (exponent == 1) {
+                    flag = false;
+                    break;
+                }
+            }
+        }
+        if (flag && checkPow(number)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] str = br.readLine().split(" ");
+        int t = Integer.parseInt(str[0]);
+        ArrayList<Integer> primeList = getPrimeList(4000);
+        for (int i = 0; i < t; i++) {
+            str = br.readLine().split(" ");
+            if (calculate(Long.parseLong(str[0]), primeList)) {
+                System.out.println("yes");
+            } else {
+                System.out.println("no");
+            }
+        }
+
+    }
 }
-
-class node{
-    private int to;
-    private int next;
-    private int volume;
-    private int flow;
-    public int getTo() {
-        return to;
-    }
-    public void setTo(int to) {
-        this.to = to;
-    }
-    public int getNext() {
-        return next;
-    }
-    public void setNext(int next) {
-        this.next = next;
-    }
-    public int getVolume() {
-        return volume;
-    }
-    public void setVolume(int volume) {
-        this.volume = volume;
-    }
-    public int getFlow() {
-        return flow;
-    }
-    public void setFlow(int flow) {
-        this.flow = flow;
-    }
-    public node(int to, int next, int volume, int flow) {
-        super();
-        this.to = to;
-        this.next = next;
-        this.volume = volume;
-        this.flow = flow;
-    }
-
-}
-
